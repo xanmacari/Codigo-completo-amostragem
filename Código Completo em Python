@@ -1,0 +1,108 @@
+import pandas as pd 
+
+import numpy as np 
+
+from sklearn.model_selection import StratifiedShuffleSplit 
+
+  
+
+# Definindo o número de investidores 
+
+n_investors = 100000 
+
+  
+
+# Simulação das variáveis 
+
+np.random.seed(42) 
+
+id_investor = np.arange(1, n_investors + 1) 
+
+age = np.random.randint(18, 80, size=n_investors) 
+
+gender = np.random.choice(['Masculino', 'Feminino'], size=n_investors) 
+
+income = np.random.normal(70000, 20000, size=n_investors).astype(int) 
+
+investment_amount = np.random.normal(100000, 50000, size=n_investors).astype(int) 
+
+num_transactions = np.random.poisson(12, size=n_investors) 
+
+investor_type = np.random.choice(['Pessoa Física', 'Pessoa Jurídica'], size=n_investors, p=[0.95, 0.05]) 
+
+region = np.random.choice(['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'], size=n_investors, p=[0.1, 0.2, 0.1, 0.5, 0.1]) 
+
+  
+
+# Criando o DataFrame 
+
+investors_df = pd.DataFrame({ 
+
+    'ID_Investidor': id_investor, 
+
+    'Idade': age, 
+
+    'Gênero': gender, 
+
+    'Renda_Anual': income, 
+
+    'Quantia_Investida': investment_amount, 
+
+    'Num_Transacoes': num_transactions, 
+
+    'Tipo_Investidor': investor_type, 
+
+    'Região_Residência': region 
+
+}) 
+
+  
+
+# Amostragem Aleatória Simples (AAS) 
+
+amostra_aas = investors_df.sample(n=1000, random_state=42) 
+
+  
+
+# Amostragem Estratificada 
+
+split = StratifiedShuffleSplit(n_splits=1, test_size=1000, random_state=42) 
+
+for _, sample_index in split.split(investors_df, investors_df['Região_Residência']): 
+
+    amostra_estratificada = investors_df.loc[sample_index] 
+
+  
+
+# Estatísticas Descritivas 
+
+estatisticas_aas = amostra_aas.describe() 
+
+estatisticas_estratificada = amostra_estratificada.describe() 
+
+  
+
+# Comparação e Resultados 
+
+comparacao = { 
+
+    'Variável': ['Idade', 'Renda Anual', 'Quantia Investida', 'Num Transacoes'], 
+
+    'Média AAS': [estatisticas_aas.loc['mean', 'Idade'], estatisticas_aas.loc['mean', 'Renda_Anual'], estatisticas_aas.loc['mean', 'Quantia_Investida'], estatisticas_aas.loc['mean', 'Num_Transacoes']], 
+
+    'Média Estratificada': [estatisticas_estratificada.loc['mean', 'Idade'], estatisticas_estratificada.loc['mean', 'Renda_Anual'], estatisticas_estratificada.loc['mean', 'Quantia_Investida'], estatisticas_estratificada.loc['mean', 'Num_Transacoes']], 
+
+    'Desvio Padrão AAS': [estatisticas_aas.loc['std', 'Idade'], estatisticas_aas.loc['std', 'Renda_Anual'], estatisticas_aas.loc['std', 'Quantia_Investida'], estatisticas_aas.loc['std', 'Num_Transacoes']], 
+
+    'Desvio Padrão Estratificada': [estatisticas_estratificada.loc['std', 'Idade'], estatisticas_estratificada.loc['std', 'Renda_Anual'], estatisticas_estratificada.loc['std', 'Quantia_Investida'], estatisticas_estratificada.loc['std', 'Num_Transacoes']] 
+
+} 
+
+  
+
+comparacao_df = pd.DataFrame(comparacao) 
+
+  
+
+print(comparacao_df) 
+ 
